@@ -1,0 +1,34 @@
+name: Record June 25 journal date
+
+on:
+  workflow_dispatch:
+    inputs:
+      author_email:
+        description: "61827509+mirzagirl@users.noreply.github.com"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  dated-commit:
+    if: github.actor == 'mirzagirl'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add dated journal note
+        env:
+          AUTHOR_EMAIL: '61827509+mirzagirl@users.noreply.github.com'
+          AUTHOR_NAME: ${{ github.actor }}
+        run: |
+          git config user.name "$AUTHOR_NAME"
+          git config user.email "$AUTHOR_EMAIL"
+          printf 'Journal date: June 25, 2024.\n' > JOURNAL_DATE.md
+          git add JOURNAL_DATE.md
+          if git diff --cached --quiet; then
+            echo "Journal date already recorded."
+            exit 0
+          fi
+          GIT_AUTHOR_DATE="2024-06-25T12:00:00+05:30" git commit -m "Record June 25 journal date"
+          git push
